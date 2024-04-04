@@ -25,7 +25,7 @@ export default defineComponent({
 
     return {
       image: "",
-      text: "",
+      text: "27 190 2 Der Käpt'n will eine Piraten-Turmuhr, aber ich kann die Kiste mit der Bauanleitung einfach nicht öffnen. Hilfst du mir?\" Annehmen Abbrechen",
       accessToken: ""
     };
   },
@@ -60,7 +60,7 @@ export default defineComponent({
       reader.onload = (e) => {
         this.image = e.target?.result as string;
         this.submitToGoogleCloudVision().then(() => {
-          this.speakText();
+          this.readTextWithUser();
         });
       };
       reader.readAsDataURL(file);
@@ -100,7 +100,7 @@ export default defineComponent({
       }
     },
 
-    async speakText() {
+    async synthesizeTextToSpeech(text: string) {
       const accessToken = await this.fetchAccessToken(); // Fetch the access token
 
       const requestOptions: RequestInit = {
@@ -110,22 +110,45 @@ export default defineComponent({
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          input: {text: this.text},
+          input: {text: text},
           voice: {languageCode: 'de-DE', ssmlGender: 'NEUTRAL'},
           audioConfig: {audioEncoding: 'MP3'},
         })
       };
-    const response = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', requestOptions);
-    if (!response.ok) {
-      throw new Error('Failed to synthesize text');
-    }
-    const data: SynthesizeSpeechResponse = await response.json();
-    const audioContent = data.audioContent;
-    if (audioContent) {
+      const response = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', requestOptions);
+      if (!response.ok) {
+        throw new Error('Failed to synthesize text');
+      }
+      const data: SynthesizeSpeechResponse = await response.json();
+      const audioContent = data.audioContent;
       const audioSrc = `data:audio/mp3;base64,${audioContent}`;
-      const audio = new Audio(audioSrc);
-      audio.play();
-    }
+      return new Audio(audioSrc);
+    },
+
+    splitTextAtMiddleWord(text: string) {
+      const words = text.split(' ');
+      const middleIndex = Math.floor(words.length / 2);
+      const middleWord = words[middleIndex];
+      const firstHalf = words.slice(0, middleIndex).join(' ');
+      const secondHalf = words.slice(middleIndex + 1).join(' ');
+      return [firstHalf, middleWord, secondHalf];
+    },
+
+    async readTextWithUser() {
+      const parts = this.splitTextAtMiddleWord(this.text);
+
+      const audio1 = await this.synthesizeTextToSpeech(parts[0]);
+      const audio2 = await this.synthesizeTextToSpeech(parts[1]);
+      const audio3 = await this.synthesizeTextToSpeech(parts[2]);
+
+      audio1.addEventListener('ended', () => {
+        audio2.play();
+      });
+
+      audio2.addEventListener('ended', () => {
+        audio3.play();
+      });
+      audio1.play();
     },
   }
 });
@@ -139,7 +162,7 @@ export default defineComponent({
   </div>
   <div v-if="text">
     <p>{{ text }}</p>
-    <button @click="speakText">Nochmal vorlesen</button>
+    <button @click="readTextWithUser">Nochmal vorlesen</button>
   </div>
 </template>
 

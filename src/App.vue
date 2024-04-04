@@ -12,7 +12,7 @@ export default defineComponent({
   },
   data () {
     return {
-      text: "",
+      text: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
     }
   },
   setup() {
@@ -75,7 +75,7 @@ export default defineComponent({
     async readTextWithUser() {
       const parts = this.splitTextAtMiddleWord(this.text);
 
-      const audio1 = await this.synthesizeTextToSpeech(parts[0]);
+        const audio1 = await this.synthesizeTextToSpeech(parts[0]);
       const audio2 = await this.synthesizeTextToSpeech(parts[1]);
       const audio3 = await this.synthesizeTextToSpeech(parts[2]);
 
@@ -88,8 +88,12 @@ export default defineComponent({
       });
       audio1.play();
     },
-  }
 
+    handleTextChange(newValue: string) {
+      this.text = newValue;
+      this.readTextWithUser();
+    },
+  }
 });
 
 
@@ -99,7 +103,7 @@ export default defineComponent({
   <main>
     <h1>LeseApp</h1>  
     <div>
-      <PictureUpload v-model="text"/>    
+      <PictureUpload @ocrTextChanged="handleTextChange"/>    
     </div>
     <div v-if="text">
       <p>{{ text }}</p>

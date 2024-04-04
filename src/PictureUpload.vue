@@ -3,22 +3,12 @@
 import axios from 'axios';
 import { defineComponent } from 'vue';
 
-import { access } from 'fs';
 const apiKey = import.meta.env.VITE_GOOGLE_CLOUD_API_KEY;
 console.log(apiKey)
-
-interface SynthesizeSpeechRequest {
-  input: { text: string };
-  voice: { languageCode: string; ssmlGender: string };
-  audioConfig: { audioEncoding: string };
-}
 
 interface SynthesizeSpeechResponse {
   audioContent: string; // Base64-encoded string of audio content
 }
-
-
-
 
 export default defineComponent({
   data() {
@@ -44,11 +34,6 @@ export default defineComponent({
       this.accessToken = data.accessToken; // Store the fetched token
       return data.accessToken;
     },
-    processFile(file: any) {
-      console.log("processFile");
-      
-      console.log(file.target.files[0]);
-    }, 
     onFileChange(e: any) {
       const files = e.target.files || e.dataTransfer.files;
       if (!files.length) return;
@@ -137,7 +122,8 @@ export default defineComponent({
     async readTextWithUser() {
       const parts = this.splitTextAtMiddleWord(this.text);
 
-      const audio1 = await this.synthesizeTextToSpeech(parts[0]);
+      const audio1 = await this.synthesizeTextToSp
+eech(parts[0]);
       const audio2 = await this.synthesizeTextToSpeech(parts[1]);
       const audio3 = await this.synthesizeTextToSpeech(parts[2]);
 

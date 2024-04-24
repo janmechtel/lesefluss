@@ -1,9 +1,15 @@
 <script lang="ts">
+import { formToJSON } from 'node_modules/axios/index.cjs';
 import PictureUpload from './PictureUpload.vue'
 import { defineComponent, ref, provide } from 'vue';
 
 interface SynthesizeSpeechResponse {
   audioContent: string; // Base64-encoded string of audio content
+}
+
+class textPart {
+  text!: string;
+  audio!: HTMLAudioElement;
 }
 
 export default defineComponent({
@@ -13,6 +19,7 @@ export default defineComponent({
   data () {
     return {
       text: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
+      parts: [] as textPart[],
     }
   },
   setup() {
@@ -73,20 +80,24 @@ export default defineComponent({
     },
 
     async readTextWithUser() {
-      const parts = this.splitTextAtMiddleWord(this.text);
+      for (const part of this.splitTextAtMiddleWord(this.text)) {
+        console.log(part);
+        this.parts.push({
+          text: part,
+          audio: await this.synthesizeTextToSpeech(part) 
+        });
+      }
 
-        const audio1 = await this.synthesizeTextToSpeech(parts[0]);
-      const audio2 = await this.synthesizeTextToSpeech(parts[1]);
-      const audio3 = await this.synthesizeTextToSpeech(parts[2]);
-
-      audio1.addEventListener('ended', () => {
-        audio2.play();
+      this.parts[0]["audio"].addEventListener('ended', () => {
+        this.parts[1]["audio"].play();
       });
 
-      audio2.addEventListener('ended', () => {
-        audio3.play();
+      this.parts[1]["audio"].addEventListener('ended', () => {
+        this.parts[2]["audio"].play();
       });
-      audio1.play();
+  
+      this.parts[0]["audio"].play();
+      // audio1.play();
     },
 
     handleTextChange(newValue: string) {
@@ -102,7 +113,7 @@ export default defineComponent({
 <template>
   <main>
     <h1>LeseApp</h1>  
-    <div>
+    <div v-if="!text">
       <PictureUpload @ocrTextChanged="handleTextChange"/>    
     </div>
     <div v-if="text">

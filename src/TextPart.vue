@@ -5,17 +5,14 @@ interface FetchAccessToken {
   (): Promise<string>; // Defines a function that returns a Promise<string>
 }
 
-import { defineComponent, inject } from 'vue';
+import { defineComponent, inject, PropType } from 'vue';
+import { TextPartInterface } from './types/TextPartInterface';
 
 export default defineComponent({
   props: {
-    text: {
-      type: String,
+    part: {
+      type: Object as PropType<TextPartInterface>,
       required: true,
-    },
-    readback: {
-      type: Boolean,
-      default: false,
     },
   },
   setup() {
@@ -126,10 +123,10 @@ export default defineComponent({
 
 <template>
   <div class="text-part">
-    {{ text }}
+    {{ part.text }}
   </div>
   <div v-if="!readback" class="text-part">
-    {{ text }}
+    {{ part.text }}
   </div>
   <div v-if="readback" class="text-part-readback">
     <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>

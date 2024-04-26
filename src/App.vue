@@ -1,17 +1,11 @@
 <script lang="ts">
-import { formToJSON } from 'node_modules/axios/index.cjs';
+// Removed unused import formToJSON
 import PictureUpload from './PictureUpload.vue';
 import TextPart from './TextPart.vue';
+import { TextPartInterface } from './types/TextPartInterface';
 import { defineComponent, ref, provide } from 'vue';
 
-interface SynthesizeSpeechResponse {
-  audioContent: string; // Base64-encoded string of audio content
-}
-
-class textPart {
-  text!: string;
-  audio!: HTMLAudioElement;
-}
+// Removed the textPart class as we will use the TextPartInterface
 
 export default defineComponent({
   components: {
@@ -20,7 +14,7 @@ export default defineComponent({
   },
   data() {
     return {
-      parts: [] as textPart[],
+      parts: [] as TextPartInterface[],
       OCRText: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
       transcribedText: null,
     }
@@ -67,10 +61,10 @@ export default defineComponent({
       if (!response.ok) {
         throw new Error('Failed to synthesize text');
       }
+      const data = await response.json();
       const data: SynthesizeSpeechResponse = await response.json();
       const audioContent = data.audioContent;
-      const audioSrc = `data:audio/mp3;base64,${audioContent}`;
-      return new Audio(audioSrc);
+      return `data:audio/mp3;base64,${audioContent}`;
     },
 
     splitTextAtMiddleWord(text: string) {
@@ -87,16 +81,12 @@ export default defineComponent({
         console.log(part);
         this.parts.push({
           text: part,
-          audio: await this.synthesizeTextToSpeech(part)
+          audio: await this.synthesizeTextToSpeech(part),
+          readback: false // Set the initial readback state
         });
       }
-      this.parts[0]["audio"].addEventListener('ended', () => {
-        this.parts[1]["audio"].play();
-      });
 
-      this.parts[1]["audio"].addEventListener('ended', () => {
-        this.parts[2]["audio"].play();
-      });
+      // Removed event listeners for audio as we will handle this in the TextPart component
     },
 
     async playFirstPart() {

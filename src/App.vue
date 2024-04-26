@@ -1,6 +1,7 @@
 <script lang="ts">
 import { formToJSON } from 'node_modules/axios/index.cjs';
-import PictureUpload from './PictureUpload.vue'
+import PictureUpload from './PictureUpload.vue';
+import TextPart from './TextPart.vue';
 import { defineComponent, ref, provide } from 'vue';
 
 interface SynthesizeSpeechResponse {
@@ -14,7 +15,8 @@ class textPart {
 
 export default defineComponent({
   components: {
-    PictureUpload
+    PictureUpload,
+    TextPart
   },
   data() {
     return {
@@ -213,9 +215,7 @@ export default defineComponent({
     </div>
     <div v-if="OCRText">
       <div id="fullOCRText">{{ OCRText }}</div>                               
-        <div v-for="(part, index) in parts" :key="index" class="text-part">
-          {{ part.text }}                                                          
-        </div>
+        <TextPart v-for="(part, index) in parts" :key="index" :text="part.text" />
       <button @click="playFirstPart">Nochmal vorlesen</button>
       <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
       <div v-if="isRecording" class="recording-indicator">

@@ -25,7 +25,7 @@ export default defineComponent({
       mediaRecorder: null as MediaRecorder | null,
       parts: [] as textPart[],
       recordedAudio: null as HTMLAudioElement | null,
-      text: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
+      OCRText: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
       transcribedText: null,
     }
   },
@@ -87,7 +87,7 @@ export default defineComponent({
     },
 
     async setupReadTextWithUserParts() {
-      for (const part of this.splitTextAtMiddleWord(this.text)) {
+      for (const part of this.splitTextAtMiddleWord(this.OCRText)) {
         console.log(part);
         this.parts.push({
           text: part,
@@ -112,7 +112,7 @@ export default defineComponent({
     },
 
     async handleTextChange(newValue: string) {
-      this.text = newValue;
+      this.OCRText = newValue;
       await this.setupReadTextWithUserParts();
       this.playFirstPart();
     },
@@ -208,11 +208,14 @@ export default defineComponent({
 <template>
   <main>
     <h1>LeseApp</h1>
-    <div v-if="!text">
+    <div v-if="!OCRText">
       <PictureUpload @ocrTextChanged="handleTextChange" />
     </div>
-    <div v-if="text">
-      <p>{{ text }}</p>
+    <div v-if="OCRText">
+      <div id="fullOCRText">{{ OCRText }}</div>                               
+        <div v-for="(part, index) in parts" :key="index" class="text-part">
+          {{ part.text }}                                                          
+        </div>
       <button @click="playFirstPart">Nochmal vorlesen</button>
       <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
       <div v-if="isRecording" class="recording-indicator">

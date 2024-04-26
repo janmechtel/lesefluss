@@ -20,13 +20,7 @@ export default defineComponent({
   },
   data() {
     return {
-      audioChunks: [],
-      audioBlob: null as Blob | null,
-      isRecorded: false,
-      isRecording: false,
-      mediaRecorder: null as MediaRecorder | null,
       parts: [] as textPart[],
-      recordedAudio: null as HTMLAudioElement | null,
       OCRText: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
       transcribedText: null,
     }
@@ -106,7 +100,7 @@ export default defineComponent({
     },
 
     async playFirstPart() {
-      if(this.parts.length == 0) {
+      if (this.parts.length == 0) {
         await this.setupReadTextWithUserParts()
       }
 
@@ -118,89 +112,6 @@ export default defineComponent({
       await this.setupReadTextWithUserParts();
       this.playFirstPart();
     },
-
-    async startRecording() {
-      if (!this.isRecording) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        this.mediaRecorder = new MediaRecorder(stream);
-        this.mediaRecorder.ondataavailable = (event) => {
-          console.log("Recording data...");
-          console.log(event.data);
-          this.audioChunks.push(event.data);
-        };
-        this.mediaRecorder.start();
-        this.isRecording = true;
-        this.isRecorded = false;
-      }
-    },
-
-    stopRecording() {
-      if (this.isRecording && this.mediaRecorder) {
-        this.mediaRecorder.stop();
-        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        this.isRecording = false;
-        this.isRecorded = true;
-
-      }
-    },
-
-    playRecordedAudio() {
-      if (this.audioChunks.length > 0) {
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/opus' });
-        this.audioBlob = audioBlob;
-        this.audioChunks = [];
-        this.recordedAudio = new Audio(URL.createObjectURL(audioBlob));
-      }
-
-      if (this.recordedAudio) {
-        this.recordedAudio.play();
-      }
-    },
-
-    blobToBase64(blob:Blob) {
-      return new Promise((resolve, _) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
-    },
-
-    async sendAudioToSpeechAPI() {
-      if (this.recordedAudio) {
-        const audioBlob = this.recordedAudio.src; // Assuming recordedAudio is already a blob URL
-        const audioFile = await fetch(audioBlob).then(r => r.blob());
-        const config = {
-          encoding: 'WEBM_OPUS',
-          sampleRateHertz: 16000,
-          languageCode: 'de-DE',
-          enableAutomaticPunctuation: true,
-        };
-        try {
-          const accessToken = await this.fetchAccessToken(); // Fetch the access token
-          const base64data = await this.blobToBase64(this.audioBlob)
-          const content = base64data.substr(base64data.indexOf(',')+1)
-          const response = await fetch('https://speech.googleapis.com/v1p1beta1/speech:recognize', {
-            method: 'POST',
-            body: JSON.stringify({
-              config: config,
-              audio: {
-                content: content,
-              },
-            }),
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-            },
-          });
-          console.log("send");
-          const json_response = await response.json();
-          this.transcribedText = json_response.results
-            .map(result => result.alternatives[0].transcript).join(' ')
-
-        } catch (error) {
-          console.error('Error sending audio to Speech API:', error);
-        }
-      }
-    }
   }
 });
 
@@ -214,8 +125,7 @@ export default defineComponent({
       <PictureUpload @ocrTextChanged="handleTextChange" />
     </div>
     <div v-if="OCRText">
-      <div id="fullOCRText">{{ OCRText }}</div>                               
-        <TextPart v-for="(part, index) in parts" :key="index" :text="part.text" />
+      <div id="fullOCRText">{{ OCRText }}</div>
       <button @click="playFirstPart">Nochmal vorlesen</button>
       <TextPart v-for="(part, index) in parts" :key="index" :text="part.text" :readback="part.readback" />
     </div>
@@ -223,22 +133,3 @@ export default defineComponent({
 
   </main>
 </template>
-
-<style scoped>
-.recording-indicator .dot {
-  animation: blink 1s infinite;
-  color: red;
-}
-
-@keyframes blink {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
-}
-</style>

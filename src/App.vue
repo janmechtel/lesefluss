@@ -86,7 +86,7 @@ export default defineComponent({
       return [firstHalf, middleWord, secondHalf];
     },
 
-    async readTextWithUser() {
+    async setupReadTextWithUserParts() {
       for (const part of this.splitTextAtMiddleWord(this.text)) {
         console.log(part);
         this.parts.push({
@@ -94,7 +94,6 @@ export default defineComponent({
           audio: await this.synthesizeTextToSpeech(part)
         });
       }
-
       this.parts[0]["audio"].addEventListener('ended', () => {
         this.parts[1]["audio"].play();
       });
@@ -102,14 +101,20 @@ export default defineComponent({
       this.parts[1]["audio"].addEventListener('ended', () => {
         this.parts[2]["audio"].play();
       });
-
-      this.parts[0]["audio"].play();
-      // audio1.play();
     },
 
-    handleTextChange(newValue: string) {
+    async playFirstPart() {
+      if(this.parts.length == 0) {
+        await this.setupReadTextWithUserParts()
+      }
+
+      this.parts[0]["audio"].play();
+    },
+
+    async handleTextChange(newValue: string) {
       this.text = newValue;
-      this.readTextWithUser();
+      await this.setupReadTextWithUserParts();
+      this.playFirstPart();
     },
 
     async startRecording() {
@@ -149,6 +154,7 @@ export default defineComponent({
         this.recordedAudio.play();
       }
     },
+
     blobToBase64(blob:Blob) {
       return new Promise((resolve, _) => {
         const reader = new FileReader();
@@ -207,20 +213,20 @@ export default defineComponent({
     </div>
     <div v-if="text">
       <p>{{ text }}</p>
-      <button @click="readTextWithUser">Nochmal vorlesen</button>
+      <button @click="playFirstPart">Nochmal vorlesen</button>
+      <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
+      <div v-if="isRecording" class="recording-indicator">
+        Recording <span class="dot">•</span>
+      </div>
+      <button v-if="isRecording" @click="stopRecording">Stop Recording</button>
+      <button v-if="isRecorded && !isRecording" @click="playRecordedAudio">Play Recording</button>
+      <button v-if="isRecorded && !isRecording" @click="sendAudioToSpeechAPI">Transcribe Recording</button>
+      <div v-if="transcribedText">
+        <h2>Transcribed Text:</h2>
+        <p>{{ transcribedText }}</p>
+      </div>
     </div>
 
-    <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
-    <div v-if="isRecording" class="recording-indicator">
-      Recording <span class="dot">•</span>
-    </div>
-    <button v-if="isRecording" @click="stopRecording">Stop Recording</button>
-    <button v-if="isRecorded && !isRecording" @click="playRecordedAudio">Play Recording</button>
-    <button v-if="isRecorded && !isRecording" @click="sendAudioToSpeechAPI">Transcribe Recording</button>
-    <div v-if="transcribedText">
-      <h2>Transcribed Text:</h2>
-      <p>{{ transcribedText }}</p>
-    </div>
 
   </main>
 </template>

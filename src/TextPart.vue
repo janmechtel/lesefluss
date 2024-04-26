@@ -5,8 +5,8 @@ interface FetchAccessToken {
   (): Promise<string>; // Defines a function that returns a Promise<string>
 }
 
-import { defineComponent, inject, PropType } from 'vue';
-import { TextPartInterface } from './types/TextPartInterface';
+import { defineComponent, inject, type PropType } from 'vue';
+import { type TextPartInterface } from './types/TextPartInterface';
 
 export default defineComponent({
   props: {
@@ -16,7 +16,6 @@ export default defineComponent({
     },
   },
   setup() {
-    // Inject the fetchAccessToken function
     const fetchAccessToken = inject('fetchAccessToken') as FetchAccessToken;
     return {
       fetchAccessToken,
@@ -125,10 +124,10 @@ export default defineComponent({
   <div class="text-part">
     {{ part.text }}
   </div>
-  <div v-if="!readback" class="text-part">
+  <div v-if="!part.readback" class="text-part">
     {{ part.text }}
   </div>
-  <div v-if="readback" class="text-part-readback">
+  <div v-if="part.readback" class="text-part-readback">
     <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
     <div v-if="isRecording" class="recording-indicator">
       Recording <span class="dot">•</span>
@@ -144,14 +143,6 @@ export default defineComponent({
 </template>
 
 <style scoped>
-.text-part {
-  /* Add styles for text part here if needed */
-}
-
-.text-part-readback {
-  /* Add styles for readback mode here if needed */
-}
-
 .recording-indicator .dot {
   animation: blink 1s infinite;
   color: red;

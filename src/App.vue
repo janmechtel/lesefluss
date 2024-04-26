@@ -1,11 +1,12 @@
 <script lang="ts">
-// Removed unused import formToJSON
 import PictureUpload from './PictureUpload.vue';
 import TextPart from './TextPart.vue';
-import { TextPartInterface } from './types/TextPartInterface';
+import { type TextPartInterface } from './types/TextPartInterface';
 import { defineComponent, ref, provide } from 'vue';
 
-// Removed the textPart class as we will use the TextPartInterface
+interface SynthesizeSpeechResponse {
+  audioContent: string; // Base64-encoded string of audio content
+}
 
 export default defineComponent({
   components: {
@@ -61,7 +62,7 @@ export default defineComponent({
       if (!response.ok) {
         throw new Error('Failed to synthesize text');
       }
-      const data = await response.json();
+
       const data: SynthesizeSpeechResponse = await response.json();
       const audioContent = data.audioContent;
       return `data:audio/mp3;base64,${audioContent}`;
@@ -93,8 +94,7 @@ export default defineComponent({
       if (this.parts.length == 0) {
         await this.setupReadTextWithUserParts()
       }
-
-      this.parts[0]["audio"].play();
+      //TODO: start playing the first part?
     },
 
     async handleTextChange(newValue: string) {
@@ -117,9 +117,7 @@ export default defineComponent({
     <div v-if="OCRText">
       <div id="fullOCRText">{{ OCRText }}</div>
       <button @click="playFirstPart">Nochmal vorlesen</button>
-      <TextPart v-for="(part, index) in parts" :key="index" :text="part.text" :readback="part.readback" />
+      <TextPart v-for="(part, index) in parts" :key="index" :part="part" />
     </div>
-
-
   </main>
 </template>

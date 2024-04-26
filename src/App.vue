@@ -19,12 +19,12 @@ export default defineComponent({
   data() {
     return {
       audioChunks: [],
-      audioBlob: null,
+      audioBlob: null as Blob | null,
       isRecorded: false,
       isRecording: false,
-      mediaRecorder: null,
+      mediaRecorder: null as MediaRecorder | null,
       parts: [] as textPart[],
-      recordedAudio: null,
+      recordedAudio: null as HTMLAudioElement | null,
       text: "25 460 0 Ich brauche einen Piratenthron, damit ich mich auf diesem Schiff wie zuhause fühlen kann!",
       transcribedText: null,
     }

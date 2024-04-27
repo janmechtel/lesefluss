@@ -41,6 +41,15 @@ export default defineComponent({
     };
   },
   methods: {
+    handleAudioEnded(index: number, _?: Event) {
+      console.log(index);
+      index++;
+      console.log(`next${index}`);
+      if (index < this.parts.length) {
+        this.$refs[`textPart${index}`][0].playAudio();
+      }
+    },
+
     async synthesizeTextToSpeech(text: string) {
       const accessToken = await this.fetchAccessToken();
 
@@ -85,23 +94,11 @@ export default defineComponent({
       }
     },
 
-    playAudio(index: number) {
-      if (index < this.parts.length) {
-        const audio = new Audio(this.parts[index].audio);
-        audio.play();
-        audio.onended = () => {
-          this.currentPartIndex++;
-          this.playAudio(this.currentPartIndex);
-        };
-      }
-    },
-
     async playFirstPart() {
       if (this.parts.length == 0) {
         await this.setupReadTextWithUserParts()
       }
-      this.currentPartIndex = 0; // Reset to the first part
-      this.playAudio(this.currentPartIndex); // Play the first part
+      this.handleAudioEnded(-1); // start play the first because part -1 ended
     },
 
     async handleTextChange(newValue: string) {
@@ -124,7 +121,7 @@ export default defineComponent({
     <div v-if="OCRText">
       <div id="fullOCRText">{{ OCRText }}</div>
       <button @click="playFirstPart">Nochmal vorlesen</button>
-      <TextPart v-for="(part, index) in parts" :key="index" :part="part" />
+      <TextPart v-for="(part, index) in parts" :key="index" :part="part" @audioEnded="(event) => handleAudioEnded(index, event)" :ref="`textPart${index}`" />
     </div>
   </main>
 </template>

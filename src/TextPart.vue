@@ -1,6 +1,6 @@
 <script lang="ts">
 
-// Define an interface or type for the fetchAccessToken function
+// Define an interface or type for  the fetchAccessToken function
 interface FetchAccessToken {
   (): Promise<string>; // Defines a function that returns a Promise<string>
 }
@@ -25,6 +25,7 @@ export default defineComponent({
     return {
       audioBlob: null as Blob | null,
       audioChunks: [] as Blob[],
+      audioElement: null as HTMLAudioElement | null,
       isRecorded: false,
       isRecording: false,
       mediaRecorder: null as MediaRecorder | null,
@@ -32,7 +33,21 @@ export default defineComponent({
       transcribedText: null as string | null,
     };
   },
+  mounted() {
+    this.createAudioElement();
+  },
   methods: {
+
+    createAudioElement() {
+      if (this.part.audio) {
+        this.audioElement = new Audio(this.part.audio);
+        this.audioElement.onended = () => this.$emit('audioEnded');
+      }
+    },
+
+    playAudio() {
+      this.audioElement?.play();
+    },
 
     async startRecording() {
       if (!this.isRecording) {

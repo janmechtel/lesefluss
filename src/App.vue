@@ -23,7 +23,6 @@ export default defineComponent({
   setup() {
     const accessToken = ref("");
     const fetchAccessToken = async () => {
-      // Check if accessToken already exists and return it
       if (accessToken.value) {
         return accessToken.value;
       }
@@ -32,8 +31,7 @@ export default defineComponent({
         throw new Error('Failed to fetch access token');
       }
       const data = await response.json();
-      // console.log(data);
-      accessToken.value = data.accessToken; // Store the fetched token
+      accessToken.value = data.accessToken;
       return data.accessToken;
     };
 
@@ -44,7 +42,7 @@ export default defineComponent({
   },
   methods: {
     async synthesizeTextToSpeech(text: string) {
-      const accessToken = await this.fetchAccessToken(); // Fetch the access token
+      const accessToken = await this.fetchAccessToken();
 
       const requestOptions: RequestInit = {
         method: 'POST',
@@ -79,15 +77,12 @@ export default defineComponent({
 
     async setupReadTextWithUserParts() {
       for (const part of this.splitTextAtMiddleWord(this.OCRText)) {
-        console.log(part);
         this.parts.push({
           text: part,
           audio: await this.synthesizeTextToSpeech(part),
-          readback: false // Set the initial readback state
+          readback: false
         });
       }
-
-      // Removed event listeners for audio as we will handle this in the TextPart component
     },
 
     async playFirstPart() {

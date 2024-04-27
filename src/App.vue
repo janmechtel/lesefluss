@@ -85,11 +85,23 @@ export default defineComponent({
       }
     },
 
+    playAudio(index: number) {
+      if (index < this.parts.length) {
+        const audio = new Audio(this.parts[index].audio);
+        audio.play();
+        audio.onended = () => {
+          this.currentPartIndex++;
+          this.playAudio(this.currentPartIndex);
+        };
+      }
+    },
+
     async playFirstPart() {
       if (this.parts.length == 0) {
         await this.setupReadTextWithUserParts()
       }
-      //TODO: start playing the first part?
+      this.currentPartIndex = 0; // Reset to the first part
+      this.playAudio(this.currentPartIndex); // Play the first part
     },
 
     async handleTextChange(newValue: string) {

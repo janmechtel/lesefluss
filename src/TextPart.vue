@@ -45,8 +45,12 @@ export default defineComponent({
       }
     },
 
-    playAudio() {
-      this.audioElement?.play();
+    startPart() {
+      if (this.part.readback) {
+        this.startRecording();
+      } else {
+        this.audioElement?.play();
+      }
     },
 
     async startRecording() {
@@ -70,7 +74,6 @@ export default defineComponent({
         this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
         this.isRecording = false;
         this.isRecorded = true;
-
       }
     },
 

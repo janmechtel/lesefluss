@@ -47,7 +47,7 @@ export default defineComponent({
       console.log(`Now playing ${index}`);
 
       if (index < this.parts.length) {
-        this.$refs[`textPart${index}`][0].playAudio();
+        this.$refs[`textPart${index}`][0].startPart();
       }
     },
 

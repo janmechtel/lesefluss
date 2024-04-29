@@ -20,6 +20,11 @@ export default defineComponent({
       transcribedText: null,
     }
   },
+  mounted() {
+    if (this.OCRText) {
+      this.handleTextChange(this.OCRText);
+    }
+  },
   setup() {
     const accessToken = ref("");
     const fetchAccessToken = async () => {

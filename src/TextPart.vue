@@ -74,20 +74,21 @@ export default defineComponent({
         this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
         this.isRecording = false;
         this.isRecorded = true;
-        this.mediaRecorder.onstop = async () => {
-          await this.sendAudioToSpeechAPI();
-        };
+        this.mediaRecorder.onstop = this.processRecordedAudioChunks;
       }
     },
 
-    playRecordedAudio() {
+    processRecordedAudioChunks() {
       if (this.audioChunks.length > 0) {
         const audioBlob = new Blob(this.audioChunks, { type: 'audio/opus' });
         this.audioBlob = audioBlob;
         this.audioChunks = [];
         this.recordedAudio = new Audio(URL.createObjectURL(audioBlob));
       }
+      this.sendAudioToSpeechAPI();
+    },
 
+    playRecordedAudio() {
       if (this.recordedAudio) {
         this.recordedAudio.play();
       }
@@ -102,9 +103,7 @@ export default defineComponent({
     },
 
     async sendAudioToSpeechAPI() {
-      if (this.recordedAudio) {
-        const audioBlob = this.recordedAudio.src; // Assuming recordedAudio is already a blob URL
-        const audioFile = await fetch(audioBlob).then(r => r.blob());
+      if (this.audioBlob) {
         const config = {
           encoding: 'WEBM_OPUS',
           sampleRateHertz: 16000,

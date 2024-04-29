@@ -55,6 +55,7 @@ export default defineComponent({
 
     async startRecording() {
       if (!this.isRecording) {
+        this.audioChunks = [];
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         this.mediaRecorder = new MediaRecorder(stream);
         this.mediaRecorder.ondataavailable = (event) => {
@@ -62,6 +63,11 @@ export default defineComponent({
           console.log(event.data);
           this.audioChunks.push(event.data);
         };
+        this.mediaRecorder.onstop = async () => {                                                                                                                                                                                                           
+          console.log("Stopped Recording")
+          this.processRecordedAudioChunks();
+          await this.sendAudioToSpeechAPI();                                                                                                                                                                                                                
+        }
         this.mediaRecorder.start();
         this.isRecording = true;
         this.isRecorded = false;
@@ -74,7 +80,6 @@ export default defineComponent({
         this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
         this.isRecording = false;
         this.isRecorded = true;
-        this.mediaRecorder.onstop = this.processRecordedAudioChunks;
       }
     },
 
@@ -84,8 +89,9 @@ export default defineComponent({
         this.audioBlob = audioBlob;
         this.audioChunks = [];
         this.recordedAudio = new Audio(URL.createObjectURL(audioBlob));
+        console.log(this.audioBlob);
+        console.log(this.recordedAudio);
       }
-      this.sendAudioToSpeechAPI();
     },
 
     playRecordedAudio() {

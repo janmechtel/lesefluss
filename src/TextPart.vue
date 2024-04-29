@@ -74,6 +74,9 @@ export default defineComponent({
         this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
         this.isRecording = false;
         this.isRecorded = true;
+        this.mediaRecorder.onstop = async () => {
+          await this.sendAudioToSpeechAPI();
+        };
       }
     },
 

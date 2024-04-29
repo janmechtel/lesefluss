@@ -86,11 +86,13 @@ export default defineComponent({
 
     async setupReadTextWithUserParts() {
       for (const part of this.splitTextAtMiddleWord(this.OCRText)) {
+        const readback = index === 1; // Enable readback for the second part
         this.parts.push({
           text: part,
           audio: await this.synthesizeTextToSpeech(part),
-          readback: false
+          readback: readback
         });
+        index++;
       }
     },
 

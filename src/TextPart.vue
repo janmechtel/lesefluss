@@ -152,18 +152,16 @@ export default defineComponent({
     {{ part.text }}
   </div>
   <div v-if="part.readback" class="text-part-readback">
-    <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
     <div v-if="isRecording" class="recording-indicator">
       Recording <span class="dot">•</span>
     </div>
     <button v-if="isRecording" @click="stopRecording">Stop Recording</button>
-    <button v-if="isRecorded && !isRecording" @click="playRecordedAudio">Play Recording</button>
-    <button v-if="isRecorded && !isRecording" @click="sendAudioToSpeechAPI">Transcribe Recording</button>
     <div v-if="transcribedText">
       <h2>Transcribed Text:</h2>
       <p>{{ transcribedText }}</p>
     </div>
   </div>
+  <hr />  
 </template>
 
 <style scoped>

@@ -41,7 +41,7 @@ export default defineComponent({
     };
   },
   methods: {
-    handleAudioEnded(index: number, _?: Event) {
+    handlePartEnded(index: number, _?: Event) {
       console.log(`Finished playing ${index}`);
       index++;
       console.log(`Now playing ${index}`);
@@ -102,7 +102,7 @@ export default defineComponent({
       if (this.parts.length == 0) {
         await this.setupReadTextWithUserParts()
       }
-      this.handleAudioEnded(-1); // start play the first because part -1 ended
+      this.handlePartEnded(-1); // start play the first because part -1 ended
     },
 
     async handleTextChange(newValue: string) {
@@ -125,7 +125,7 @@ export default defineComponent({
     <div v-if="OCRText">
       <div id="fullOCRText">{{ OCRText }}</div>
       <button @click="playFirstPart">Nochmal vorlesen</button>
-      <TextPart v-for="(part, index) in parts" :key="index" :part="part" @audioEnded="(event) => handleAudioEnded(index, event)" :ref="`textPart${index}`" />
+      <TextPart v-for="(part, index) in parts" :key="index" :part="part" @partEnded="(event) => handlePartEnded(index, event)" :ref="`textPart${index}`" />
     </div>
   </main>
 </template>

@@ -41,7 +41,7 @@ export default defineComponent({
     createAudioElement() {
       if (this.part.audio) {
         this.audioElement = new Audio(this.part.audio);
-        this.audioElement.onended = () => this.$emit('audioEnded');
+        this.audioElement.onended = () => this.$emit('partEnded');
       }
     },
 
@@ -135,7 +135,8 @@ export default defineComponent({
           console.log("send");
           const json_response = await response.json();
           this.transcribedText = json_response.results
-            .map(result => result.alternatives[0].transcript).join(' ')
+            .map(result => result.alternatives[0].transcript).join(' ');
+          this.$emit('partEnded');
 
         } catch (error) {
           console.error('Error sending audio to Speech API:', error);

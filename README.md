@@ -8,6 +8,16 @@ Try it from mobile at [https://janmechtel.github.io/leseapp/](https://janmechtel
 2. Text is read out loud 
 3. Kid is asked to read parts of the text (Coming soon)
 
+## Roadmap
+- [x] stop recording after 5s
+
+- [ ] compare transcription to text + otherwise try again celebrate success
+- [ ] UI progress bar during recording
+- [ ] try again on error
+- [ ] instructions (first written, ideally spoken)
+- [ ] cache the debugging audio / transcriptions to not always call the cloud
+
+
 ## Setup
 - using Google Cloud Vision for OCR and Google Speech for Text to Speech
 - using simple Google Cloud Function to provide temporary access tokens to the front end

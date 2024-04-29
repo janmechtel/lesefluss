@@ -109,41 +109,50 @@ export default defineComponent({
         reader.readAsDataURL(blob);
       });
     },
-
-    async sendAudioToSpeechAPI() {
+    async processAudioReadback() {
       if (this.audioBlob) {
-        const config = {
-          encoding: 'WEBM_OPUS',
-          sampleRateHertz: 16000,
-          languageCode: 'de-DE',
-          enableAutomaticPunctuation: true,
-        };
-        try {
-          const accessToken = await this.fetchAccessToken(); // Fetch the access token
-          const base64data = await this.blobToBase64(this.audioBlob)
-          const content = base64data.substr(base64data.indexOf(',') + 1)
-          const response = await fetch('https://speech.googleapis.com/v1p1beta1/speech:recognize', {
-            method: 'POST',
-            body: JSON.stringify({
-              config: config,
-              audio: {
-                content: content,
-              },
-            }),
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-            },
-          });
-          console.log("Sending audio to Speech API...");
-          const json_response = await response.json();
-          this.transcribedText = json_response.results
-            .map(result => result.alternatives[0].transcript).join(' ');
-          console.log(`transcribed text: ${this.transcribedText}`)
-          this.$emit('partEnded');
-
-        } catch (error) {
-          console.error('Error sending audio to Speech API:', error);
+        this.transcribedText = await this.sendAudioToSpeechAPI(this.audioBlob);
+        console.log(`transcribed text: ${this.transcribedText}`);
+        if (this.transcribedText === this.part.text.trim()) {
+          console.log("Great");
+        } else {
+          console.log("FAIL!");
         }
+        this.$emit('partEnded');
+      }
+    },
+
+    async sendAudioToSpeechAPI(blob: Blob): Promise<string> {
+      const config = {
+        encoding: 'WEBM_OPUS',
+        sampleRateHertz: 16000,
+        languageCode: 'de-DE',
+        enableAutomaticPunctuation: true,
+      };
+      try {
+        const accessToken = await this.fetchAccessToken(); // Fetch the access token
+        const base64data = await this.blobToBase64(blob);
+        const content = base64data.substr(base64data.indexOf(',') + 1);
+        const response = await fetch('https://speech.googleapis.com/v1p1beta1/speech:recognize', {
+          method: 'POST',
+          body: JSON.stringify({
+            config: config,
+            audio: {
+              content: content,
+            },
+          }),
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+        console.log("Sending audio to Speech API...");
+        const json_response = await response.json();
+        return json_response.results
+          .map(result => result.alternatives[0].transcript).join(' ').trim();
+
+      } catch (error) {
+        console.error('Error sending audio to Speech API:', error);
+        return ""
       }
     }
   }
@@ -160,7 +169,7 @@ export default defineComponent({
     </div>
     <button v-if="isRecording" @click="stopRecording">Stop Recording</button>
   </div>
-  <hr />  
+  <hr />
 </template>
 
 <style scoped>

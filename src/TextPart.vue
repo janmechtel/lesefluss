@@ -15,6 +15,7 @@ export default defineComponent({
       required: true,
     },
   },
+  emits: ['partEnded'],
   setup() {
     const fetchAccessToken = inject('fetchAccessToken') as FetchAccessToken;
     return {
@@ -63,12 +64,13 @@ export default defineComponent({
           console.log(event.data);
           this.audioChunks.push(event.data);
         };
-        this.mediaRecorder.onstop = async () => {                                                                                                                                                                                                           
+        this.mediaRecorder.onstop = async () => {
           console.log("Stopped Recording")
           this.processRecordedAudioChunks();
-          await this.sendAudioToSpeechAPI();                                                                                                                                                                                                                
+          await this.sendAudioToSpeechAPI();
         }
         this.mediaRecorder.start();
+        setTimeout(() => this.stopRecording(), 3000);
         this.isRecording = true;
         this.isRecorded = false;
       }

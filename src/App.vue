@@ -47,9 +47,9 @@ export default defineComponent({
   },
   methods: {
     handlePartEnded(index: number, _?: Event) {
-      console.log(`Finished playing ${index}`);
+      console.log(`Finished part ${index}`);
       index++;
-      console.log(`Now playing ${index}`);
+      console.log(`Now starting part ${index}`);
 
       if (index < this.parts.length) {
         this.$refs[`textPart${index}`][0].startPart();
@@ -128,9 +128,8 @@ export default defineComponent({
       <PictureUpload @ocrTextChanged="handleTextChange" />
     </div>
     <div v-if="OCRText">
-      <div id="fullOCRText">{{ OCRText }}</div>
-      <button @click="playFirstPart">Nochmal vorlesen</button>
       <TextPart v-for="(part, index) in parts" :key="index" :part="part" @partEnded="(event) => handlePartEnded(index, event)" :ref="`textPart${index}`" />
+        <button @click="playFirstPart">Nochmal vorlesen</button>
     </div>
   </main>
 </template>

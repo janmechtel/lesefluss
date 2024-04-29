@@ -134,10 +134,11 @@ export default defineComponent({
               'Authorization': `Bearer ${accessToken}`,
             },
           });
-          console.log("send");
+          console.log("Sending audio to Speech API...");
           const json_response = await response.json();
           this.transcribedText = json_response.results
             .map(result => result.alternatives[0].transcript).join(' ');
+          console.log(`transcribed text: ${this.transcribedText}`)
           this.$emit('partEnded');
 
         } catch (error) {
@@ -158,10 +159,6 @@ export default defineComponent({
       Recording <span class="dot">•</span>
     </div>
     <button v-if="isRecording" @click="stopRecording">Stop Recording</button>
-    <div v-if="transcribedText">
-      <h2>Transcribed Text:</h2>
-      <p>{{ transcribedText }}</p>
-    </div>
   </div>
   <hr />  
 </template>

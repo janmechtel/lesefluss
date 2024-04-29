@@ -139,9 +139,6 @@ export default defineComponent({
   <div class="text-part">
     {{ part.text }}
   </div>
-  <div v-if="!part.readback" class="text-part">
-    {{ part.text }}
-  </div>
   <div v-if="part.readback" class="text-part-readback">
     <button v-if="!isRecording && !isRecorded" @click="startRecording">Start Recording</button>
     <div v-if="isRecording" class="recording-indicator">

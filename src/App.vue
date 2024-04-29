@@ -42,9 +42,10 @@ export default defineComponent({
   },
   methods: {
     handleAudioEnded(index: number, _?: Event) {
-      console.log(index);
+      console.log(`Finished playing ${index}`);
       index++;
-      console.log(`next${index}`);
+      console.log(`Now playing ${index}`);
+
       if (index < this.parts.length) {
         this.$refs[`textPart${index}`][0].playAudio();
       }
@@ -85,6 +86,7 @@ export default defineComponent({
     },
 
     async setupReadTextWithUserParts() {
+      let index = 0;
       for (const part of this.splitTextAtMiddleWord(this.OCRText)) {
         const readback = index === 1; // Enable readback for the second part
         this.parts.push({

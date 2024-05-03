@@ -49,12 +49,19 @@ export default defineComponent({
     handlePartEnded(index: number, _?: Event) {
       console.log(`Finished part ${index}`);
       index++;
-      console.log(`Now starting part ${index}`);
-
+      
       if (index < this.parts.length) {
-        this.$refs[`textPart${index}`][0].startPart();
+        console.log(`Now starting part ${index}`);
+        (this.$refs[`textPart${index}`] as any)[0].startPart();
+      } else {
+        this.reset();
       }
     },
+    reset() {
+      this.transcribedText=null;
+      this.OCRText="";
+    },
+
 
     async synthesizeTextToSpeech(text: string) {
       const accessToken = await this.fetchAccessToken();
@@ -128,8 +135,9 @@ export default defineComponent({
       <PictureUpload @ocrTextChanged="handleTextChange" />
     </div>
     <div v-if="OCRText">
-      <TextPart v-for="(part, index) in parts" :key="index" :part="part" @partEnded="(event) => handlePartEnded(index, event)" :ref="`textPart${index}`" />
-        <button @click="playFirstPart">Nochmal vorlesen</button>
+      <TextPart v-for="(part, index) in parts" :key="index" :part="part"
+        @partEnded="(event) => handlePartEnded(index, event)" :ref="`textPart${index}`" />
+      <button @click="playFirstPart">Nochmal vorlesen</button>
     </div>
   </main>
 </template>

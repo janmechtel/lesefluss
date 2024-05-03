@@ -67,7 +67,7 @@ export default defineComponent({
         this.mediaRecorder.onstop = async () => {
           console.log("Stopped Recording")
           this.processRecordedAudioChunks();
-          await this.sendAudioToSpeechAPI();
+          this.processAudioReadback();
         }
         this.mediaRecorder.start();
         setTimeout(() => this.stopRecording(), 3000);
@@ -103,7 +103,7 @@ export default defineComponent({
     },
 
     blobToBase64(blob: Blob) {
-      return new Promise((resolve, _) => {
+      return new Promise<string | ArrayBuffer | null>((resolve, _) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
         reader.readAsDataURL(blob);
@@ -111,7 +111,7 @@ export default defineComponent({
     },
     async processAudioReadback() {
       if (this.audioBlob) {
-        this.transcribedText = await this.sendAudioToSpeechAPI(this.audioBlob);
+        this.transcribedText = await this.sendAudioToSpeechAPI();
         console.log(`transcribed text: ${this.transcribedText}`);
         if (this.transcribedText === this.part.text.trim()) {
           console.log("Great");
@@ -122,7 +122,7 @@ export default defineComponent({
       }
     },
 
-    async sendAudioToSpeechAPI(blob: Blob): Promise<string> {
+    async sendAudioToSpeechAPI(): Promise<string> {
       const config = {
         encoding: 'WEBM_OPUS',
         sampleRateHertz: 16000,
@@ -131,7 +131,7 @@ export default defineComponent({
       };
       try {
         const accessToken = await this.fetchAccessToken(); // Fetch the access token
-        const base64data = await this.blobToBase64(blob);
+        const base64data = await this.blobToBase64(this.audioBlob as Blob) as string;
         const content = base64data.substr(base64data.indexOf(',') + 1);
         const response = await fetch('https://speech.googleapis.com/v1p1beta1/speech:recognize', {
           method: 'POST',
@@ -148,7 +148,7 @@ export default defineComponent({
         console.log("Sending audio to Speech API...");
         const json_response = await response.json();
         return json_response.results
-          .map(result => result.alternatives[0].transcript).join(' ').trim();
+          .map((result: { alternatives: { transcript: any; }[]; }) => result.alternatives[0].transcript).join(' ').trim();
 
       } catch (error) {
         console.error('Error sending audio to Speech API:', error);

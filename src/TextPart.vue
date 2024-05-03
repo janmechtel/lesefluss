@@ -32,12 +32,19 @@ export default defineComponent({
       mediaRecorder: null as MediaRecorder | null,
       recordedAudio: null as HTMLAudioElement | null,
       transcribedText: null as string | null,
+      showSuccess: false, // to control the visibility of the success animation
     };
   },
   mounted() {
     this.createAudioElement();
   },
   methods: {
+    showSuccessAnimation() {
+      this.showSuccess = true;
+      setTimeout(() => {
+        this.showSuccess = false; // Hide the animation after 2 seconds
+      }, 2000);
+    },
 
     createAudioElement() {
       if (this.part.audio) {
@@ -114,7 +121,7 @@ export default defineComponent({
         this.transcribedText = await this.sendAudioToSpeechAPI();
         console.log(`transcribed text: ${this.transcribedText}`);
         if (this.transcribedText === this.part.text.trim()) {
-          console.log("Great");
+          this.showSuccessAnimation(); // Trigger success animation instead of logging to console
         } else {
           console.log("FAIL!");
         }
@@ -162,6 +169,9 @@ export default defineComponent({
 <template>
   <div class="text-part">
     {{ part.text }}
+    <div v-if="showSuccess" class="success-animation">
+      Success!
+    </div>
   </div>
   <div v-if="part.readback" class="text-part-readback">
     <div v-if="isRecording" class="recording-indicator">
@@ -173,20 +183,28 @@ export default defineComponent({
 </template>
 
 <style scoped>
-.recording-indicator .dot {
-  animation: blink 1s infinite;
-  color: red;
+.success-animation {
+  animation: successBlink 2s infinite;
+  color: green;
+  font-size: 20px;
+  font-weight: bold;
 }
 
-@keyframes blink {
-
-  0%,
-  100% {
+@keyframes successBlink {
+  0%, 100% {
     opacity: 1;
   }
-
   50% {
     opacity: 0;
   }
 }
+
+.recording-indicator .dot {
+  animation: blink 1s infinite;
+  color: red;
+}
 </style>
+
+
+
+

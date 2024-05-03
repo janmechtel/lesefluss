@@ -10,10 +10,11 @@ Try it from mobile at [https://janmechtel.github.io/leseapp/](https://janmechtel
 
 ## Roadmap
 - [x] stop recording after 5s
-
 - [ ] compare transcription to text + otherwise try again celebrate success
-- [ ] UI progress bar during recording
-- [ ] try again on error
+- [ ] visually celebrate the success
+
+- [ ] UI progress bar during recording / playing back
+- [ ] try again on recording/transcription error
 - [ ] instructions (first written, ideally spoken)
 - [ ] cache the debugging audio / transcriptions to not always call the cloud
 
